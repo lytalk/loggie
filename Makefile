@@ -88,7 +88,7 @@ build: ## go build, EXT_BUILD_TAGS=include_core would only build core package
 ##@ Build(without sqlite)
 
 build-in-badger: ## go build without sqlite, EXT_BUILD_TAGS=include_core would only build core package
-	GOOS=${GOOS} GOARCH=${GOARCH} go build -tags driver_badger,${EXT_BUILD_TAGS} -mod=vendor -a -ldflags '-X github.com/loggie-io/loggie/pkg/core/global._VERSION_=${TAG} -X github.com/loggie-io/loggie/pkg/util/persistence._DRIVER_=badger -s -w' -o loggie cmd/loggie/main.go
+	CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} go build  -a -installsuffix nocgo -tags driver_badger,${EXT_BUILD_TAGS} -mod=vendor -a -ldflags '-X github.com/loggie-io/loggie/pkg/core/global._VERSION_=${TAG} -X github.com/loggie-io/loggie/pkg/util/persistence._DRIVER_=badger -s -w' -o loggie cmd/loggie/main.go
 
 ##@ Images
 
