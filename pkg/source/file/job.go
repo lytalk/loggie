@@ -24,7 +24,7 @@ import (
 	"strconv"
 	"strings"
 	"sync/atomic"
-	"syscall"
+	//	"syscall"
 	"time"
 
 	"github.com/loggie-io/loggie/pkg/core/log"
@@ -73,17 +73,6 @@ type Job struct {
 
 	lineEnd       []byte
 	encodeLineEnd []byte
-}
-
-func JobUid(fileInfo os.FileInfo) string {
-	stat := fileInfo.Sys().(*syscall.Stat_t)
-	inode := stat.Ino
-	device := stat.Dev
-	var buf [64]byte
-	current := strconv.AppendUint(buf[:0], inode, 10)
-	current = append(current, '-')
-	current = strconv.AppendUint(current, uint64(device), 10)
-	return string(current)
 }
 
 func WatchJobId(pipelineName string, sourceName string, jobUid string) string {
@@ -225,7 +214,7 @@ func (j *Job) Active() (error, bool) {
 		if err != nil {
 			return err, fdOpen
 		}
-		newUid := JobUid(fileInfo)
+		newUid := JobUid(j.filename, fileInfo)
 		if j.Uid() != newUid {
 			j.Delete()
 			return fmt.Errorf("job(filename: %s) uid(%s) changed to %s，it maybe not a file", j.filename, j.Uid(), newUid), fdOpen
@@ -365,7 +354,7 @@ func (j *Job) ProductEvent(endOffset int64, collectTime time.Time, body []byte) 
 }
 
 func NewJob(task *WatchTask, filename string, fileInfo os.FileInfo) *Job {
-	jobUid := JobUid(fileInfo)
+	jobUid := JobUid(filename, fileInfo)
 	return newJobWithUid(task, filename, jobUid)
 }
 
